@@ -1,0 +1,737 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: Nextflow
+file_extensions:
+  - nf
+  - config
+  - nextflow
+variables:
+  unicode_letter: |-
+    (?:(?xi)
+      # Valid unicode letters according to:
+      # http://groovy-lang.org/syntax.html#_normal_identifiers
+      #   Literal Unicode         Escaped Unicode
+          [\x{00C0}-\x{00D6}]  |  \\u00C[0-9A-F] | \\u00D[0-6]
+        | [\x{00D8}-\x{00F6}]  |  \\u00D[89A-F]  | \\u00E[0-9A-F] | \\u00F[0-6]
+        | [\x{00F8}-\x{00FF}]  |  \\u00F[89A-F]
+        | [\x{0100}-\x{FFFE}]  |  \\u0[1-9A-F][0-9A-F]{2} | \\u(?!FFFF)[1-9A-F][0-9A-F]{3}
+    )
+
+  # dollars aren't allowed in the single dollar interpolated identifiers
+  # (dotted expressions), but they are supposed to be valid characters
+  # in identifiers in other contexts
+  # e.g. `"$$a"` is invalid, but `"${$a}"` is fine.
+  single_dollar_interpolation_identifier: (?:{{unicode_letter}}|[a-zA-Z_])(?:{{unicode_letter}}|[a-zA-Z0-9_])*
+scope: source.nextflow
+contexts:
+  main:
+    - match: ^(#!).+$\n
+      scope: comment.line.hashbang.nextflow
+      captures:
+        1: punctuation.definition.comment.nextflow
+    - match: '^\s*(package)\s+([^ ;]+)'
+      scope: meta.package.nextflow
+      captures:
+        1: keyword.other.package.nextflow
+        2: storage.type.package.nextflow
+    - match: '^\s*(import)\s+([^ ;$]+);?'
+      scope: meta.import.nextflow
+      captures:
+        1: keyword.other.import.nextflow
+        2: storage.type.import.nextflow
+    - include: nextflow
+  class-object:
+    - match: |-
+        (?x)
+            \b(
+              (?:[a-z]\w*\.)* # Optional package specification
+              [A-Z]\w+\b # Class name
+              (?:<(?:[\w, ]*)>)? # Optional Generics
+              (?:\[\s*\])* # Optional brackets (array)
+            )\b
+      scope: storage.type.class.nextflow
+  classes:
+    - match: |-
+        (?x)^\s*
+        (?:(?:\b(?:(public|private|protected)|(static)|(final)|(native|synchronized|abstract|threadsafe|transient))\b\s*)*) # modifier
+        (class)\s+
+        (\w+)\s* # identifier
+      captures:
+        1: storage.modifier.access-control.nextflow
+        2: storage.modifier.static.nextflow
+        3: storage.modifier.final.nextflow
+        4: storage.modifier.other.nextflow
+        5: storage.type.class.nextflow
+        6: entity.name.type.class.nextflow
+      push:
+        - meta_scope: meta.definition.class.nextflow
+        - match: $
+          captures:
+            1: storage.modifier.access-control.nextflow
+            2: storage.modifier.static.nextflow
+            3: storage.modifier.final.nextflow
+            4: storage.modifier.other.nextflow
+            5: storage.type.class.nextflow
+            6: entity.name.type.class.nextflow
+          pop: true
+        - match: '(extends)\s+([a-zA-Z0-9_\.]+(?:<(?:[a-zA-Z0-9_, ])+>)?)\s*'
+          scope: meta.definition.class.inherited.classes.nextflow
+          captures:
+            1: storage.modifier.extends.nextflow
+            2: entity.other.inherited-class.nextflow
+        - match: (implements)\s
+          captures:
+            1: storage.modifier.implements.nextflow
+          push:
+            - meta_scope: meta.definition.class.implemented.interfaces.nextflow
+            - match: '(?=\s*extends|$|\{)'
+              pop: true
+            - match: '((?:[a-z]\w*.)*[A-Z]\w*)\s*(?:(,)|$|\{)'
+              captures:
+                1: entity.other.inherited-class.interface.nextflow
+                2: punctuation.definition.implemented.interfaces.separator.nextflow
+  comment-block:
+    - match: /\*
+      scope: punctuation.definition.comment.nextflow
+      push:
+        - meta_scope: comment.block.nextflow
+        - match: \*/
+          scope: punctuation.definition.comment.nextflow
+          pop: true
+  comments:
+    - match: /\*\*/
+      scope: comment.block.empty.nextflow punctuation.definition.comment.nextflow
+    - include: scope:text.html.javadoc
+    - include: comment-block
+    - match: (//).*$\n?
+      scope: comment.line.double-slash.nextflow
+      captures:
+        1: punctuation.definition.comment.nextflow
+  constants:
+    - match: '\b([A-Z][A-Z0-9_]+)\b'
+      scope: constant.other.nextflow
+    - match: \b(true|false|null)\b
+      scope: constant.language.nextflow
+  nextflow:
+    - include: classes
+    - include: methods
+    - include: nextflow-code
+  nextflow-code:
+    - include: nextflow-code-minus-map-keys
+    - include: map-keys
+    - include: block
+  nextflow-code-minus-map-keys:
+    - include: comments
+    - include: support-functions
+    - include: keyword-language
+    - include: values
+    - include: keyword-operator
+    - include: storage-types
+    - include: storage-modifiers
+  keyword:
+    - include: keyword-operator
+    - include: keyword-language
+  keyword-language:
+    - match: \b(try|catch|finally|throw)\b
+      scope: keyword.control.exception.nextflow
+    - match: \b(return|break|continue|default|do|while|for|switch|if|else)\b
+      scope: keyword.control.nextflow
+    - match: \bcase\b
+      scope: keyword.control.nextflow
+      push:
+        - meta_scope: meta.case.nextflow
+        - match: ":"
+          scope: punctuation.definition.case-terminator.nextflow
+          pop: true
+        - include: nextflow-code-minus-map-keys
+    - match: \b(new)\b
+      scope: keyword.other.new.nextflow
+    - match: \b(assert)\s
+      captures:
+        1: keyword.control.assert.nextflow
+      push:
+        - meta_scope: meta.declaration.assertion.nextflow
+        - match: $
+          pop: true
+        - match: ":"
+          scope: keyword.operator.assert.expression-separator.nextflow
+        - include: nextflow-code-minus-map-keys
+    - match: \b(throws)\b
+      scope: keyword.other.throws.nextflow
+  keyword-operator:
+    - match: \b(as)\b
+      scope: keyword.operator.as.nextflow
+    - match: \b(is)\b
+      scope: keyword.operator.is.nextflow
+    - match: '\?\:'
+      scope: keyword.operator.elvis.nextflow
+    - match: \.\.
+      scope: keyword.operator.range.nextflow
+    - match: \->
+      scope: keyword.operator.arrow.nextflow
+    - match: "<<"
+      scope: keyword.operator.leftshift.nextflow
+    - match: (?<=\S)\.(?=\S)
+      scope: punctuation.accessor.dot.nextflow
+    - match: (?<=\S)\?\.(?=\S)
+      scope: punctuation.accessor.nextflow
+    - match: \?
+      scope: keyword.operator.ternary.nextflow
+      push:
+        - meta_scope: meta.evaluation.ternary.nextflow
+        - match: $
+          pop: true
+        - match: ":"
+          scope: keyword.operator.ternary.expression-separator.nextflow
+        - include: nextflow-code-minus-map-keys
+    - match: "==~"
+      scope: keyword.operator.match.nextflow
+    - match: "=~"
+      scope: keyword.operator.find.nextflow
+    - match: \b(instanceof)\b
+      scope: keyword.operator.instanceof.nextflow
+    - match: (===|==|!=|<=|>=|<=>|<>|<|>|<<)
+      scope: keyword.operator.comparison.nextflow
+    - match: "="
+      scope: keyword.operator.assignment.nextflow
+    - match: (\-\-|\+\+)
+      scope: keyword.operator.increment-decrement.nextflow
+    - match: (\-|\+|\*|\/|%)
+      scope: keyword.operator.arithmetic.nextflow
+    - match: (!|&&|\|\|)
+      scope: keyword.operator.logical.nextflow
+  map-keys:
+    - match: (\w+)\s*(:)
+      captures:
+        1: constant.other.key.nextflow
+        2: punctuation.definition.separator.key-value.nextflow
+  method-call:
+    - match: (\w+)(\()
+      captures:
+        1: meta.method.nextflow
+        2: punctuation.definition.method-parameters.begin.nextflow
+      push:
+        - meta_scope: meta.method-call.nextflow
+        - match: \)
+          scope: punctuation.definition.method-parameters.end.nextflow
+          pop: true
+        - match: ","
+          scope: punctuation.definition.separator.parameter.nextflow
+        - include: nextflow-code
+  process-def:
+    - match: ^\s*(process)\s+(\w+|"[^"]+"|'[^']+')\s*(\{)
+      captures:
+        1: storage.type.return-type.def.nextflow
+        2: entity.name.function.nextflow
+        3: punctuation.definition.process.begin.nextflow
+      push:
+        - meta_scope: meta.definition.process.nextflow
+        - match: \}
+          captures:
+            1: punctuation.definition.process.end.nextflow
+          pop: true
+        - include: process-script-def
+        - include: process-script-single-quote
+        - include: process-script-double-quote
+        - include: process-output
+        - include: process-input
+        - include: directives
+        - include: nextflow-code
+  process-script-def:
+    - match: '^\s*(script|shell|exec):'
+      captures:
+        1: keyword.other.process-script-def.nextflow
+  process-input:
+    - match: '^\s*(input)\:'
+      captures:
+        1: keyword.other.process-input.nextflow
+      push:
+        - meta_scope: meta.definition.process-input.nextflow
+        - match: \b(from)\b
+          scope: keyword.operator.from.nextflow
+        - include: process-val
+        - include: nextflow-code
+        - include: process-set-operator
+        - match: '(?=^\s*output\:)'
+          pop: true
+  process-output:
+    - match: '^\s*(output)\:'
+      captures: 
+        1: keyword.other.process-output.nextflow
+      push:
+        - meta_scope: meta.definition.process-output.nextflow
+        - match: (?=^\s*''')
+          pop: true
+        - match: (?=^\s*""")
+          pop: true
+        - match: (?=^\s*when)
+          pop: true
+        - match: (?=^\s*(script|shell|exec)\:)
+          pop: true
+        - match: \b(into)\b
+          scope: keyword.operator.into.nextflow
+        - include: process-set-operator
+        - include: process-val
+        - include: nextflow-code
+  process-set-operator:
+    - match: ^\s*(set)\b
+      captures: 
+        1: support.function.set.nextflow
+  process-val:
+    - match: \b(val)\b
+      scope: support.function.val.nextflow
+  process-script-double-quote:
+    - match: ^\s*(""")
+      captures:
+        1: punctuation.definition.string.begin.nextflow
+      push:
+          - meta_scope: string.quoted.double.block.nextflow
+          - match: '""""'
+            scope: invalid.illegal
+            pop: true
+          - match: '"""'
+            scope: punctuation.definition.string.end.nextflow
+            pop: true
+          - match: '(?=#!/usr/bin/env python)'
+            push: Packages/Python/Python.sublime-syntax
+            with_prototype:
+              - match: (?=""")
+                pop: true
+          - include: string-escape-sequences
+          - include: single-dollar-string-interpolation
+          - match: '\$\{'
+            scope: punctuation.section.embedded.nextflow
+            push:
+              - meta_scope: source.nextflow.embedded.source
+              - match: '\}'
+                scope: punctuation.section.embedded.nextflow
+                pop: true
+              - include: escaped-end-of-line
+              - include: nextflow-code
+              - match: (task)\.(\w+)
+                captures: 
+                  1: support.variable.task.nextflow
+                  2: entity.name.task-param.nextflow
+          # anything else following a dollar sign is not a valid interpolation
+          - match: \$(?=")
+            scope: invalid.illegal.nextflow
+          - match: \$[^"]+
+            scope: invalid.illegal.nextflow
+  process-script-single-quote:
+    - match: ^\s*(''')
+      captures:
+        1: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.single.block.nextflow
+        - match: "'''"
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - include: string-escape-sequences
+  method-declaration-remainder:
+    - match: \(
+      scope: punctuation.definition.parameters.begin.nextflow
+      push:
+        - meta_content_scope: meta.definition.method.parameters.nextflow
+        - match: \)
+          scope: punctuation.definition.parameters.end.nextflow
+          pop: true
+        - match: |-
+            (?x)\s*
+              (
+                (?:boolean|byte|char|short|int|float|long|double|(?:\w+\.)*[A-Z]\w*\b(?:<(?:[\w, ]*)>)?(?:\[\s*\])*)
+              )?
+              \s*
+              ([a-z_][A-Za-z0-9_]*) # variable
+          scope: meta.definition.method.parameter.nextflow
+          captures:
+            1: storage.type.parameter.nextflow
+            2: variable.parameter.nextflow
+        - match: '(boolean|byte|char|short|int|float|long|double|(?:\w+\.)*[A-Z]\w*\b(?:<(?:[\w, ]*)>)?(?:\[\s*\])*)'
+          scope: meta.definition.method.parameter.nextflow
+          captures:
+            1: storage.type.parameter.nextflow
+        - match: ","
+          scope: punctuation.definition.parameters.separator.nextflow
+        - include: comment-block
+    - match: (?<=\))\s*(throws)\s
+      captures:
+        1: storage.modifier.throws.nextflow
+      push:
+        - meta_scope: meta.definition.method.throwables.nextflow
+        - match: '(?=$|\{)'
+          captures:
+            1: storage.modifier.throws.nextflow
+          pop: true
+        - match: '((?:[a-z]\w*.)*[A-Z]\w*)\s*(?:(,)|$|\{)'
+          captures:
+            1: storage.type.throwable.nextflow
+            2: punctuation.definition.throwables.separator.nextflow
+  methods:
+    - match: |-
+        (?x)^\s*
+          (?: # zero or more modifiers
+            (?:
+              (public|private|protected)|(final)|(native|synchronized|abstract|threadsafe|transient)
+            )
+            \s+
+          )?
+          \s*
+          ([A-Z](?:[a-zA-Z0-9_])+) # constructor/class name
+          \s*
+          (?=\()
+      captures:
+        1: storage.modifier.access-control.nextflow
+        2: storage.modifier.final.nextflow
+        3: storage.modifier.other.nextflow
+        4: entity.name.function.constructor.nextflow
+        5: punctuation.definition.parameters.begin.nextflow
+      push:
+        - meta_scope: meta.definition.constructor.nextflow
+        - match: '{|$\n?'
+          pop: true
+        - include: method-declaration-remainder
+    - match: |-
+        (?x)^\s*
+          (?:
+            (?: # or modifier and optional type
+              (?:(?:\b(public|private|protected)|(static)|(final)|(native|synchronized|abstract|threadsafe|transient))\b\s+)+\s* # modifier
+              (?:\b
+                (void\b)
+                |
+                ((?:boolean|byte|char|short|int|float|long|double)\b) # primitive
+                |
+                ( # or class type
+                  (?:\w+\.)*[A-Z]\w+\b # Class name
+                  (?:<(?:[\w, ]*)>)? # optional Generic type
+                  (?:\[\s*\])* # zero or more square brackets (array)
+                )
+              )?
+            )
+            |
+            (?:\b # or type by itself
+              (def\b)
+              |
+              (void\b)
+              |
+              ((?:boolean|byte|char|short|int|float|long|double)\b) # primitive
+              |
+              ( # or class type
+                (?:\w+\.)*[A-Z]\w+\b # Class name
+                (?:<(?:[\w, ]*)>)? # optional generics info
+                (?:\[\s*\])* # zero or more square brackets (array)
+              )
+            )
+          )
+          \s*
+          (\w+) # method name
+          \s*
+          (?=\() # opening parens
+      captures:
+        1: storage.modifier.access-control.nextflow
+        2: storage.modifier.static.nextflow
+        3: storage.modifier.final.nextflow
+        4: storage.modifier.other.nextflow
+        5: storage.type.return-type.void.nextflow
+        6: storage.type.return-type.primitive.nextflow
+        7: storage.type.return-type.class.nextflow
+        8: storage.type.return-type.def.nextflow
+        9: storage.type.return-type.void.nextflow
+        10: storage.type.return-type.primitive.nextflow
+        11: storage.type.return-type.class.nextflow
+        12: entity.name.function.nextflow
+      push:
+        - meta_scope: meta.definition.method.nextflow
+        - match: '{|$\n?'
+          pop: true
+        - include: method-declaration-remainder
+  block:
+    - match: '\{'
+      scope: punctuation.section.block.begin.nextflow
+      push:
+        - meta_scope: meta.block.nextflow
+        - match: '\}'
+          scope: punctuation.section.block.end.nextflow
+          pop: true
+        - include: nextflow-code
+  numbers:
+    - match: '((0(x|X)[0-9a-fA-F]*)|(\+|-)?\b(([0-9]+\.?[0-9]*)|(\.[0-9]+))((e|E)(\+|-)?[0-9]+)?)([LlFfUuDd]|UL|ul)?\b'
+      scope: constant.numeric.nextflow
+  regexp:
+    - match: "/(?=[^/]+/)"
+      scope: punctuation.definition.string.regexp.begin.nextflow
+      push:
+        - meta_scope: string.regexp.nextflow
+        - match: /
+          scope: punctuation.definition.string.regexp.end.nextflow
+          pop: true
+        # backslashes only escape forward slashes and newlines (and unicode)
+        - match: \\/
+          scope: constant.character.escape.nextflow
+        - include: escaped-end-of-line
+        - include: unicode-escape-sequence
+        - include: single-dollar-string-interpolation
+        - match: '\$\{'
+          scope: punctuation.section.embedded.nextflow
+          push:
+            - meta_scope: source.nextflow.embedded.source
+            - match: '\}'
+              scope: punctuation.section.embedded.nextflow
+              pop: true
+            - include: escaped-end-of-line
+            # newlines are invalid inside the interpolation
+            # but outside of a nested multiline string
+            - match: '\n'
+              scope: invalid.illegal.newline.nextflow
+              pop: true
+            - include: nextflow-code
+  storage-modifiers:
+    - match: \b(private|protected|public)\b
+      scope: storage.modifier.access-control.nextflow
+    - match: \b(static)\b
+      scope: storage.modifier.static.nextflow
+    - match: \b(final)\b
+      scope: storage.modifier.final.nextflow
+    - match: \b(native|synchronized|abstract|threadsafe|transient)\b
+      scope: storage.modifier.other.nextflow
+  storage-types:
+    - match: '(@[^ (]+)(\()'
+      captures:
+        1: storage.type.annotation.nextflow
+        2: punctuation.definition.annotation-arguments.begin.nextflow
+      push:
+        - meta_scope: meta.declaration.annotation.nextflow
+        - match: (\))
+          captures:
+            1: punctuation.definition.annotation-arguments.end.nextflow
+          pop: true
+        - match: (\w*)\s*(=)
+          captures:
+            1: constant.other.key.nextflow
+            2: keyword.operator.assignment.nextflow
+        - include: values
+        - match: ","
+          scope: punctuation.definition.separator.nextflow
+    - match: '@\S+'
+      scope: storage.type.annotation.nextflow
+    - match: \b(def)\b
+      scope: storage.type.def.nextflow
+    - match: '\b(boolean|byte|char|short|int|float|long|double)(?:\[\s*\])*\b'
+      scope: storage.type.primitive.nextflow
+  single-dollar-string-interpolation:
+    - match: \${{single_dollar_interpolation_identifier}}
+      scope: variable.other.interpolated.nextflow
+      push:
+        - match: \.(?={{single_dollar_interpolation_identifier}})
+          scope: punctuation.accessor.dot.nextflow
+        - match: '{{single_dollar_interpolation_identifier}}'
+          scope: variable.other.interpolated.nextflow
+        - match: \b
+          pop: true
+  unicode-escape-sequence:
+    - match: \\u\h{4}
+      scope: constant.character.escape.nextflow
+    - match: \\u(?!\h{4}).{4}
+      scope: invalid.illegal.escape.nextflow
+  escaped-end-of-line:
+    - match: \\\n
+      scope: constant.character.escape.nextflow
+  string-escape-sequences:
+    - include: unicode-escape-sequence
+    - include: escaped-end-of-line
+    - match: |-
+        \\[nrtbf\$\\'"]
+      scope: constant.character.escape.nextflow
+    - match: \\.
+      scope: invalid.illegal.escape.nextflow
+  string-quoted-double:
+    - match: '"'
+      scope: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.double.nextflow
+        - match: '"'
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - match: '\n'
+          scope: invalid.illegal.unclosed-string.nextflow
+          pop: true
+        - include: string-escape-sequences
+        - include: single-dollar-string-interpolation
+        - match: '\$\{'
+          scope: punctuation.section.embedded.nextflow
+          push:
+            - meta_scope: source.nextflow.embedded.source
+            - match: '\}'
+              scope: punctuation.section.embedded.nextflow
+              pop: true
+            - include: escaped-end-of-line
+            # we don't consume the newline here, so that
+            # the outer scope handles it and pops correctly
+            - match: '(?=\n)'
+              pop: true
+            - include: nextflow-code
+        # anything else following a dollar sign is not a valid interpolation
+        - match: \$(?=")
+          scope: invalid.illegal.identifier.nextflow
+        - match: \$[^"]+
+          scope: invalid.illegal.identifier.nextflow
+  string-quoted-single:
+    - match: "'"
+      scope: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.single.nextflow
+        - match: "'"
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - match: '\n'
+          scope: invalid.illegal.unclosed-string.nextflow
+          pop: true
+        - include: string-escape-sequences
+  string-quoted-triple-single:
+    - match: "'''"
+      scope: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.single.block.nextflow
+        - match: "'''"
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - include: string-escape-sequences
+  string-quoted-triple-double:
+    - match: '"""'
+      scope: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.double.block.nextflow
+        - match: '""""'
+          scope: invalid.illegal
+          pop: true
+        - match: '"""'
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - include: string-escape-sequences
+        - include: single-dollar-string-interpolation
+        - match: '\$\{'
+          scope: punctuation.section.embedded.nextflow
+          push:
+            - meta_scope: source.nextflow.embedded.source
+            - match: '\}'
+              scope: punctuation.section.embedded.nextflow
+              pop: true
+            - include: escaped-end-of-line
+            - include: nextflow-code
+        # anything else following a dollar sign is not a valid interpolation
+        - match: \$(?=")
+          scope: invalid.illegal.nextflow
+        - match: \$[^"]+
+          scope: invalid.illegal.nextflow
+  string-dollar-slashy:
+    - clear_scopes: 1
+    - match: '\$/'
+      scope: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.other.dollar-slashy.nextflow
+        - match: '/\$'
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - match: '\$/|\$\$'
+          scope: constant.character.escape.nextflow
+        # backslashes only escape newlines (and unicode)
+        - include: escaped-end-of-line
+        - include: unicode-escape-sequence
+        - include: single-dollar-string-interpolation
+        - match: '\$\{'
+          scope: punctuation.section.embedded.nextflow
+          push:
+            - meta_scope: source.nextflow.embedded.source
+            - match: '\}'
+              scope: punctuation.section.embedded.nextflow
+              pop: true
+            - include: escaped-end-of-line
+            - include: nextflow-code
+  strings:
+    - include: string-quoted-triple-double
+    - include: string-quoted-triple-single
+    - include: string-quoted-double
+    - include: string-quoted-single
+    - include: regexp
+    - include: string-dollar-slashy
+  structures:
+    - match: '\['
+      scope: punctuation.definition.structure.begin.nextflow
+      push:
+        - meta_scope: meta.structure.nextflow
+        - match: '\]'
+          scope: punctuation.definition.structure.end.nextflow
+          pop: true
+        - include: nextflow-code
+        - match: ","
+          scope: punctuation.definition.separator.nextflow
+  support-functions:
+    - match: (?x)\b(?:sprintf|print(?:f|ln)?)\b
+      scope: support.function.print.nextflow
+    - match: |-
+        (?x)\b(?:shouldFail|fail(?:NotEquals)?|ass(?:ume|ert(?:S(?:cript|ame)|N(?:ot(?:Same|
+        Null)|ull)|Contains|T(?:hat|oString|rue)|Inspect|Equals|False|Length|
+        ArrayEquals)))\b
+      scope: support.function.testing.nextflow
+    - match: (?x)\b(?:sleep|inspect|dump|use|with)\b
+      scope: support.function.other.nextflow
+  values:
+    - include: variables
+    - include: built-ins
+    - include: strings
+    - include: numbers
+    - include: constants
+    - include: class-object
+    - include: structures
+    - include: method-call
+    - include: process-def
+    - include: channel-operators
+  directives: 
+    - match: ^\s+(afterScript|beforeScript|cache|cpus|conda|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
+      captures: 
+        1: support.type.nextflow
+  channel-operators:
+    - match: \.(create|empty|fromFilePairs|fromPath|from|value|watchPath)
+      captures:
+        1: support.function.channel-factory.nextflow
+    - match: \s+\.(distinct|filter|first|last|randomSample|take|unique|until)
+      captures:
+        1: keyword.operator.channel-filtering-operator.nextflow
+    - match: \s+\.(buffer|collate|collect|flatten|flatMap|groupBy|groupTuple|map|reduce|toList|toSortedList|transpose)
+      captures: 
+        1: keyword.operator.channel-transforming-operator.nextflow
+    - match: \s+\.(splitCsv|splitFasta|splitFastq|splitText)
+      captures: 
+        1: keyword.operator.channel-splitting-operator.nextflow
+    - match: \s+\.(cross|collectFile|combine|concat|into|join|merge|mix|phase|spread|tap)\b
+      captures:
+        1: keyword.operator.channel-combining-operator.nextflow
+    - match: \s+\.(choice|separate|route)
+      captures:
+        1: keyword.operator.channel-forking-operator.nextflow
+    - match: \s+\.(toInteger|countBy|count|min|max|sum)
+      captures:
+        1: keyword.operator.channel-maths-operator.nextflow
+    - match: \s+\.(close|dump|ifEmpty|println|print|set|view)\b
+      captures: 
+        1: keyword.operator.channel-other-operator.nextflow
+  built-ins:
+    - match: \b(file)\b
+      scope: support.function.file.nextflow
+    - match: \b(log)\.\b
+      captures:
+        1: support.variable.log.nextflow
+    - match: \b(workflow)\.\b
+      captures:
+        1: support.variable.workflow.nextflow
+    - match: \b(params)\.(\w+)\b
+      captures:
+        1: support.variable.params.nextflow
+        2: entity.name.parameter.nextflow
+    - match: ^\s*(exit)\s+(\d+)\b
+      captures:
+        1: support.function.exit.nextflow
+        2: constant.numeric.nextflow
+  variables:
+    - match: \b(this|super|it)\b
+      scope: variable.language.nextflow

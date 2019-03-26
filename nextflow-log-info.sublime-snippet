@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[
+log.info"""
+$1
+""".stripIndent()
+]]></content>
+	<tabTrigger>info</tabTrigger>
+	<scope>source.nextflow</scope>
+</snippet>

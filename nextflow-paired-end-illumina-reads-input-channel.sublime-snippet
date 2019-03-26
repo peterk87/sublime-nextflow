@@ -1,0 +1,10 @@
+<snippet>
+	<content><![CDATA[
+Channel
+  .fromFilePairs( ${1:params.reads}, ${2:flat: true})
+  .map { [ it[0].replaceAll(/_S\d{1,2}_L001/, ""), it[1], it[2] ] }
+  .set { ${3:samples_ch} }
+]]></content>
+	<tabTrigger>illumina</tabTrigger>
+	<scope>source.nextflow</scope>
+</snippet>
