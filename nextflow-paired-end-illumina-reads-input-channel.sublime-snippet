@@ -6,5 +6,5 @@ Channel
   .set { ${3:samples_ch} }
 ]]></content>
 	<tabTrigger>illumina</tabTrigger>
-	<scope>source.nextflow</scope>
+	<scope>source.nextflow - meta.definition.process.nextflow</scope>
 </snippet>

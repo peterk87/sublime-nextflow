@@ -132,6 +132,22 @@ process mash_screen_vs_refs {
   """
 }
 
+process ProcessName {
+  tag "info about process"
+
+  input:
+    set val(value), file(file1) into ch_files
+//                              ^ source.nextflow meta.definition.process.nextflow meta.definition.process-input.nextflow invalid.illegal.into.nextflow
+  output:
+    set val(value), file(output) from ch_output
+//                               ^ source.nextflow meta.definition.process.nextflow meta.definition.process-output.nextflow invalid.illegal.from.nextflow
+
+  script:
+  """
+  dostuff
+  """
+}
+
 
 Channel.empty() // Create assemblies channel
 //      ^ support.function.channel-factory.nextflow

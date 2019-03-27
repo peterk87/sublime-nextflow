@@ -4,7 +4,6 @@
 name: Nextflow
 file_extensions:
   - nf
-  - config
   - nextflow
 variables:
   unicode_letter: |-
@@ -238,6 +237,12 @@ contexts:
         - include: process-input
         - include: directives
         - include: nextflow-code
+  directives: 
+    - match: '^\s+(afterScript|beforeScript|cache|cpus|conda|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
+      scope: invalid.illegal.directive-with.nextflow
+    - match: ^\s+(afterScript|beforeScript|cache|cpus|conda|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
+      captures: 
+        1: support.type.nextflow
   process-script-def:
     - match: '^\s*(script|shell|exec):'
       captures:
@@ -248,6 +253,8 @@ contexts:
         1: keyword.other.process-input.nextflow
       push:
         - meta_scope: meta.definition.process-input.nextflow
+        - match: \b(into)\b
+          scope: invalid.illegal.into.nextflow
         - match: \b(from)\b
           scope: keyword.operator.from.nextflow
         - include: process-val
@@ -260,12 +267,14 @@ contexts:
       captures: 
         1: keyword.other.process-output.nextflow
       push:
+        - match: \b(from)\b
+          scope: invalid.illegal.from.nextflow
         - meta_scope: meta.definition.process-output.nextflow
         - match: (?=^\s*''')
           pop: true
         - match: (?=^\s*""")
           pop: true
-        - match: (?=^\s*when)
+        - match: (?=^\s*when\:)
           pop: true
         - match: (?=^\s*(script|shell|exec)\:)
           pop: true
@@ -686,10 +695,7 @@ contexts:
     - include: method-call
     - include: process-def
     - include: channel-operators
-  directives: 
-    - match: ^\s+(afterScript|beforeScript|cache|cpus|conda|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
-      captures: 
-        1: support.type.nextflow
+    - include: channels
   channel-operators:
     - match: \.(create|empty|fromFilePairs|fromPath|from|value|watchPath)
       captures:
@@ -735,3 +741,6 @@ contexts:
   variables:
     - match: \b(this|super|it)\b
       scope: variable.language.nextflow
+  channels:
+    - match: \b(ch_\w+)\b
+      scope: variable.parameter.channel.nextflow

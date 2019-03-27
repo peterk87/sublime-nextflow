@@ -1,7 +1,7 @@
 <snippet>
 	<content><![CDATA[
-params.$1 = $2
+params.${1:parameter} = ${2:"default value"}
 ]]></content>
 	<tabTrigger>par</tabTrigger>
-	<scope>source.nextflow</scope>
+	<scope>source.nextflow - meta.definition.process.nextflow</scope>
 </snippet>

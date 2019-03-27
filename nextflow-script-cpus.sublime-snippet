@@ -2,8 +2,6 @@
 	<content><![CDATA[
 \${task.cpus}
 ]]></content>
-	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
 	<tabTrigger>cpus</tabTrigger>
-	<!-- Optional: Set a scope to limit where the snippet will trigger -->
-	<scope>source.groovy meta.block.groovy string.quoted.double.block.groovy</scope>
+	<scope>source.nextflow meta.definition.process.nextflow string.quoted.double.block.nextflow</scope>
 </snippet>

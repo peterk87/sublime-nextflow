@@ -2,11 +2,9 @@
 	<content><![CDATA[
 script_path = "\$baseDir/scripts/$1"
 """
-$2 \$script_path $3
+${2:python} \$script_path ${3:--input \$input --output \$output}
 """
 ]]></content>
-	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
 	<tabTrigger>script_path</tabTrigger>
-	<!-- Optional: Set a scope to limit where the snippet will trigger -->
-	<scope>source.nextflow</scope>
+	<scope>source.nextflow meta.definition.process.nextflow</scope>
 </snippet>
