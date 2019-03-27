@@ -3,8 +3,7 @@
 #!/usr/bin/env nextflow
 
 params.outdir = "\$baseDir/results"
-params.$1 = $2
-params.$3 = $4
+params.${1:reads} = ${2:"\$baseDir/reads/*R{1,2\}*.fastq.gz"}
 
 outdir = params.outdir
 
@@ -21,7 +20,6 @@ def helpMessage() {
     nextflow run ${workflow.manifest.name} -profile standard --outdir /output/path
     Options:
       --$1                          Help message for "$1" (default: $2)
-      --$3                          Help message for "$3" (default: $4)
     Other options:
       --outdir                      The output directory where the results will be saved (default: \$outdir)
       -w/--work-dir                 The temporary directory where intermediate data will be saved

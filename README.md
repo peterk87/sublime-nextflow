@@ -23,3 +23,4 @@ Nextflow syntax highlighting extends Sublime Text 3's Groovy syntax with highlig
 - `cpus`: insert "${task.cpus}" into a script
 - `script_path`: specify user script (e.g. Python script) to use from `scripts/` directory in workflow base directory
 - `info`: `log.info` snippet 
+- `done`: on workflow complete or error message

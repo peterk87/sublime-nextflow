@@ -3,7 +3,7 @@
 Channel
   .fromFilePairs( ${1:params.reads}, ${2:flat: true})
   .map { [ it[0].replaceAll(/_S\d{1,2}_L001/, ""), it[1], it[2] ] }
-  .set { ${3:samples_ch} }
+  .set { ${3:ch_reads} }
 ]]></content>
 	<tabTrigger>illumina</tabTrigger>
 	<scope>source.nextflow - meta.definition.process.nextflow</scope>
