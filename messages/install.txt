@@ -1,5 +1,5 @@
 *********************************************************************************************
-*  sublime-nextflow: Nextflow workflow syntax highlighting and snippets for Sublime Text 3  *
+*  sublime-nextflow: Nextflow workflow syntax highlighting and snippets for Sublime Text 4  *
 *********************************************************************************************
 
 Thanks for using sublime-nextflow!

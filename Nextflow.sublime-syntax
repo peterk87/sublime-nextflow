@@ -34,12 +34,71 @@ contexts:
       captures:
         1: keyword.other.package.nextflow
         2: storage.type.package.nextflow
-    - match: '^\s*(import)\s+([^ ;$]+);?'
-      scope: meta.import.nextflow
-      captures:
-        1: keyword.other.import.nextflow
-        2: storage.type.import.nextflow
     - include: nextflow
+  import-modules:
+    - match: \b(include)\b
+      scope: keyword.control.include-module.nextflow
+      push:
+        - meta_scope: meta.import-module.nextflow
+        - include: import-modules-include-body
+        - include: import-modules-from
+        - include: import-modules-addparams
+        - match: $
+          pop: true
+  import-modules-addparams:
+    - match: \b(addParams)\b
+      scope: keyword.other.addparams.nextflow
+    - match: \(
+      push:
+        - meta_scope: meta.import-module.addparams-call.nextflow
+        - match: \)
+          pop: true
+        - match: '\b(\w+)(:)'
+          captures:
+            1: variable.other.addparams-key.nextflow
+            2: punctuation.separator.annotation.parameter.nextflow
+        - include: nextflow-code-minus-map-keys
+  import-modules-from:
+    - match: \b(from)\b
+      scope: keyword.control.include-module.from.nextflow
+    - include: import-from-path
+  import-from-path:
+    - match: "'"
+      scope: punctuation.definition.string.begin.nextflow
+      push:
+        - meta_scope: string.quoted.single.relative-import-path.nextflow
+        - match: (?<=')(\.)
+          scope: punctuation.definition.relative-import-path.nextflow
+        - match: (?<=')([^\.])
+          scope: invalid.illegal.relative-import-path.nextflow
+        - match: "'"
+          scope: punctuation.definition.string.end.nextflow
+          pop: true
+        - match: '\n'
+          scope: invalid.illegal.unclosed-string.nextflow
+          pop: true
+        - include: string-escape-sequences
+  import-modules-include-body:
+    - meta_scope: meta.statement.include-module.nextflow
+    - match: \{
+      scope: punctuation.section.module-include-block.begin.nextflow
+      push:
+        - meta_scope: meta.module-include-block.nextflow
+        - match: \}
+          scope: punctuation.section.module-include-block.end.nextflow
+          pop: true
+        - match: \b(as)\b
+          scope: keyword.operator.as.nextflow
+        - match: ';'
+          scope: punctuation.separator.include-module-list.nextflow
+        - match: \b(\w+)\b
+          scope: entity.name.module-import.nextflow
+        - match: \s*$
+          scope: invalid.illegal.unclosed-include-body.nextflow
+          pop: true
+  import-modules-from-body:
+    - meta_scope: meta.statement.include-module.nextflow
+    - meta_content_scope: meta.include-source.nextflow
   class-object:
     - match: |-
         (?x)
@@ -121,6 +180,7 @@ contexts:
     - include: map-keys
     - include: block
   nextflow-code-minus-map-keys:
+    - include: import-modules
     - include: comments
     - include: support-functions
     - include: keyword-language
@@ -222,7 +282,7 @@ contexts:
     - match: ^\s*(process)\s+(\w+|"[^"]+"|'[^']+')\s*(\{)
       captures:
         1: storage.type.return-type.def.nextflow
-        2: entity.name.function.nextflow
+        2: entity.name.process.nextflow
         3: punctuation.definition.process.begin.nextflow
       push:
         - meta_scope: meta.definition.process.nextflow
@@ -238,11 +298,19 @@ contexts:
         - include: directives
         - include: nextflow-code
   directives: 
-    - match: '^\s+(afterScript|beforeScript|cache|cpus|conda|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
+    - match: '^\s+(afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
       scope: invalid.illegal.directive-with.nextflow
-    - match: ^\s+(afterScript|beforeScript|cache|cpus|conda|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
+    - match: ^\s+(afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
       captures: 
         1: support.type.nextflow
+    - match: '^\s*(conda)\s+'
+      captures:
+        1: support.type.conda.nextflow
+      push:
+        - meta_scope: meta.definition.conda-directive.nextflow
+        - include: nextflow-code
+        - match: '$'
+          pop: true
   process-script-def:
     - match: '^\s*(script|shell|exec):'
       captures:
@@ -253,43 +321,113 @@ contexts:
         1: keyword.other.process-input.nextflow
       push:
         - meta_scope: meta.definition.process-input.nextflow
-        - match: \b(into)\b
-          scope: invalid.illegal.into.nextflow
-        - match: \b(from)\b
-          scope: keyword.operator.from.nextflow
-        - include: process-val
+        - include: process-input-channel
         - include: nextflow-code
-        - include: process-set-operator
         - match: '(?=^\s*output\:)'
           pop: true
+        - include: popping-process-input-or-output
   process-output:
     - match: '^\s*(output)\:'
       captures: 
         1: keyword.other.process-output.nextflow
       push:
-        - match: \b(from)\b
-          scope: invalid.illegal.from.nextflow
         - meta_scope: meta.definition.process-output.nextflow
-        - match: (?=^\s*''')
-          pop: true
-        - match: (?=^\s*""")
-          pop: true
-        - match: (?=^\s*when\:)
-          pop: true
-        - match: (?=^\s*(script|shell|exec)\:)
-          pop: true
-        - match: \b(into)\b
-          scope: keyword.operator.into.nextflow
+        - include: process-output-channel
+        - include: nextflow-code
+        - include: popping-process-input-or-output
+  popping-process-input-or-output:
+    - match: (?=^\s*''')
+      pop: true
+    - match: (?=^\s*""")
+      pop: true
+    - match: (?=^\s*when\:)
+      pop: true
+    - match: (?=^\s*(script|shell|exec)\:)
+      pop: true
+  process-input-channel:
+    - match: '^\s*(?=tuple|set|file|path|val)'
+      push:
+        - meta_scope: meta.definition.process-input-channel.nextflow
+        - include: process-tuple-operator
         - include: process-set-operator
         - include: process-val
-        - include: nextflow-code
+        - include: process-path
+        - include: process-file
+        - match: \b(from)\b
+          scope: keyword.operator.from.nextflow
+        - match: \b(into)\b
+          scope: invalid.illegal.into.nextflow
+        - match: '\b[^a-zA-Z0-9_]\s$'
+          scope: invalid.illegal.process-input-channel.nextflow
+          pop: true
+        - match: $
+          pop: true
+  process-output-channel:
+    - match: '^\s*(?=tuple|set|file|path|val)'
+      push:
+        - meta_scope: meta.definition.process-output-channel.nextflow
+        - include: process-tuple-operator
+        - include: process-set-operator
+        - include: process-val
+        - include: process-path
+        - include: process-file
+        - include: process-output-emit
+        - match: \b(into)\b
+          scope: keyword.operator.into.nextflow
+        - match: \b(from)\b
+          scope: invalid.illegal.from.nextflow
+        - match: '\b[^a-zA-Z0-9_]\s$'
+          scope: invalid.illegal.process-output-channel.nextflow
+          pop: true
+        - match: $
+          pop: true
+  process-output-emit:
+    - match: (,)\s*(emit)(:)\s*(\w+)
+      captures:
+        1: punctuation.separator.process-output-channel.nextflow
+        2: keyword.other.process-output-emit.nextflow
+        3: punctuation.separator.process-output-emit.nextflow
+        4: variable.other.process-output-emit.nextflow
+      pop: true
   process-set-operator:
-    - match: ^\s*(set)\b
+    - match: \b(set)\b
       captures: 
-        1: support.function.set.nextflow
+        1: keyword.other.channel.set.nextflow
+  process-tuple-operator:
+    - match: \b(tuple)\b
+      captures:
+        1: keyword.other.channel.tuple.nextflow
   process-val:
     - match: \b(val)\b
       scope: support.function.val.nextflow
+      push:
+        - meta_scope: meta.function-call.process-val.nextflow
+        - include: popping-process-channel-func
+  process-path:
+    - match: \b(path)\b
+      scope: support.function.path.nextflow
+      push:
+        - meta_scope: meta.function-call.process-path.nextflow
+        - include: popping-process-channel-func
+  process-file:
+    - match: \b(file)\b
+      scope: support.function.file.nextflow
+      push:
+        - meta_scope: meta.function-call.process-file.nextflow
+        - include: popping-process-channel-func
+  popping-process-channel-func:
+    - match: \)
+      pop: true
+    - match: \b(?=from|into)\b
+      pop: true
+    - match: (?=,)
+      pop: true
+    - include: string-quoted-double
+    - include: string-quoted-single
+    - match: '\b(\w+)\b'
+      scope: variable.other.process.nextflow
+    - match: $
+      pop: true
   process-script-double-quote:
     - match: ^\s*(""")
       captures:
@@ -337,6 +475,63 @@ contexts:
           scope: punctuation.definition.string.end.nextflow
           pop: true
         - include: string-escape-sequences
+  conditional-block:
+    - match: \(
+      push:
+      - meta_scope: meta.statement.conditional.nextflow
+      - match: \)
+        pop: true
+      - include: nextflow-code-minus-map-keys
+
+  workflow-conditionals:
+    - match: \b(if)\b
+      scope: keyword.control.conditional.if.nextflow
+    - include: conditional-block
+    - match: \{
+      push:
+        - meta_scope: meta.conditional-block.nextflow
+        - match: \}
+          pop: true
+        - include: workflow-stuff
+
+  process-out:
+    - match: \b([A-Z][A-Z0-9\_]+)\.(out)(\.)?(\w+)?
+      captures:
+        1: variable.process.nextflow
+        2: keyword.process.out.nextflow
+        3: punctuation.accessor.dot.process-out.nextflow
+        4: variable.channel.process-output-emit.nextflow
+  workflow-process-call:
+    - match: \b([A-Z][A-Z0-9\_]+)\b(\()
+      captures:
+        1: variable.process.nextflow
+        2: punctuation.section.process-call.begin.nextflow
+      push:
+        - meta_scope: meta.process-call.nextflow
+        - match: \)
+          scope: punctuation.section.arguments.end.nextflow
+          pop: true
+        - include: process-out
+        - include: nextflow-code
+  workflow-def:
+    - match: ^\s*(workflow)\s*(\w+)?.*(\{)
+      captures:
+        1: keyword.declaration.workflow.nextflow
+        2: entity.name.workflow.nextflow
+        3: punctuation.definition.workflow.begin.nextflow
+      push:
+        - meta_scope: meta.definition.workflow.nextflow
+        - include: workflow-stuff
+  workflow-stuff:
+    - match: \}
+      captures:
+        1: punctuation.definition.workflow.end.nextflow
+      pop: true
+    - include: process-out
+    - include: workflow-process-call
+    - include: workflow-conditionals
+    - include: nextflow-code
+
   method-declaration-remainder:
     - match: \(
       scope: punctuation.definition.parameters.begin.nextflow
@@ -694,8 +889,23 @@ contexts:
     - include: structures
     - include: method-call
     - include: process-def
+    - include: workflow-def
     - include: channel-operators
     - include: channels
+  channel-combining-operators:
+    - match: \s*(\.)(cross|collectFile|combine|concat|into|join|merge|mix|phase|spread|tap)\s*\(
+      captures: 
+        1: punctuation.accessor.channel.nextflow
+        2: keyword.operator.channel-combining-operator.nextflow
+        3: punctuation.section.channel-operator-call.begin.nextflow
+      push:
+        - meta_scope: meta.channel-operator-call
+        - match: \)
+          scope: punctuation.section.channel-operator-call.end.nextflow
+          pop: true
+        - include: process-out
+        - include: nextflow
+
   channel-operators:
     - match: \.(create|empty|fromFilePairs|fromPath|from|value|watchPath)
       captures:
@@ -703,22 +913,20 @@ contexts:
     - match: \s+\.(distinct|filter|first|last|randomSample|take|unique|until)
       captures:
         1: keyword.operator.channel-filtering-operator.nextflow
-    - match: \s+\.(buffer|collate|collect|flatten|flatMap|groupBy|groupTuple|map|reduce|toList|toSortedList|transpose)
+    - match: \s*\.(buffer|collate|collect|flatten|flatMap|groupBy|groupTuple|map|reduce|toList|toSortedList|transpose)
       captures: 
         1: keyword.operator.channel-transforming-operator.nextflow
-    - match: \s+\.(splitCsv|splitFasta|splitFastq|splitText)
+    - match: \s*\.(splitCsv|splitFasta|splitFastq|splitText)
       captures: 
         1: keyword.operator.channel-splitting-operator.nextflow
-    - match: \s+\.(cross|collectFile|combine|concat|into|join|merge|mix|phase|spread|tap)\b
-      captures:
-        1: keyword.operator.channel-combining-operator.nextflow
-    - match: \s+\.(choice|separate|route)
+    - include: channel-combining-operators
+    - match: \s*\.(choice|separate|route)
       captures:
         1: keyword.operator.channel-forking-operator.nextflow
-    - match: \s+\.(toInteger|countBy|count|min|max|sum)
+    - match: \s*\.(toInteger|countBy|count|min|max|sum)
       captures:
         1: keyword.operator.channel-maths-operator.nextflow
-    - match: \s+\.(close|dump|ifEmpty|println|print|set|view)\b
+    - match: \s*\.(close|dump|ifEmpty|println|print|set|view)\b
       captures: 
         1: keyword.operator.channel-other-operator.nextflow
   built-ins:
@@ -730,10 +938,15 @@ contexts:
     - match: \b(workflow)\.\b
       captures:
         1: support.variable.workflow.nextflow
-    - match: \b(params)\.(\w+)\b
+    - match: \b(params)(\.)(\w+)\b
       captures:
         1: support.variable.params.nextflow
-        2: entity.name.parameter.nextflow
+        2: punctuation.params.dot
+        3: entity.name.parameter.nextflow
+    - match: \b(params)(\.)
+      captures:
+        1: support.variable.params.nextflow
+        2: punctuation.params.dot
     - match: ^\s*(exit)\s+(\d+)\b
       captures:
         1: support.function.exit.nextflow

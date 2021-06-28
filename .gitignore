@@ -1,2 +1,6 @@
 package-metadata.json
 *.swp
+.idea/
+.ipynb_checkpoints/
+*.ipynb
+*.pickle

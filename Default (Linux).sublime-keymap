@@ -1,0 +1,33 @@
+/*
+sublime-nextflow keymap for Linux
+*/
+[
+  {
+    "keys": ["ctrl+shift+g"],
+    "command": "goto_definition"
+  },
+  {
+    "keys": ["ctrl+l", "p"],
+    "context": [
+      {"key": "selector", "operator": "equal", "operand": "source.nextflow - (comment | meta)", "match_all": true},
+      {"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}
+    ],
+    "command": "nextflow_include_process"
+  },
+  {
+    "keys": ["ctrl+l", "f"],
+    "context": [
+      {"key": "selector", "operator": "equal", "operand": "source.nextflow - (comment | meta)", "match_all": true},
+      {"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}
+    ],
+    "command": "nextflow_include_functions"
+  },
+  {
+    "keys": ["ctrl+l", "c"],
+    "context": [
+      {"key": "selector", "operator": "equal", "operand": "(source.nextflow meta.definition.process.nextflow) - (comment)", "match_all": true},
+      {"key": "selection_empty", "operator": "equal", "operand": true, "match_all": true}
+    ],
+    "command": "nextflow_biocontainer_select"
+  }
+]

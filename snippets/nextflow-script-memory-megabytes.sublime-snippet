@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[
+\${task.memory.toMega()}
+]]></content>
+	<tabTrigger>memm</tabTrigger>
+	<scope>source.nextflow meta.definition.process.nextflow string.quoted.double.block.nextflow</scope>
+</snippet>
