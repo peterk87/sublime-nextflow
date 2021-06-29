@@ -14,5 +14,5 @@ process ${1:NAME} {
 }
 ]]></content>
 	<tabTrigger>proc</tabTrigger>
-	<scope>source.nextflow - meta.definition.process.nextflow</scope>
+	<scope>source.nextflow - meta</scope>
 </snippet>

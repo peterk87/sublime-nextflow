@@ -62,7 +62,7 @@ class NextflowCondaPackagesEventListener(sublime_plugin.EventListener):
         if len(locations) > 1:
             return
         point = locations[0]
-        if not view.score_selector(point, 'source.nextflow meta.definition.process.nextflow meta.definition.conda-directive.nextflow string.quoted.single.nextflow'):
+        if not view.score_selector(point, 'source.nextflow meta.definition.process.nextflow meta.definition.conda-directive.nextflow string'):
             return
         pkgs = get_cached_pkgs_list()
         if pkgs:

@@ -219,7 +219,7 @@ workflow {
 // ^ meta.definition.workflow.nextflow keyword.declaration.workflow.nextflow
   ch_input = Channel.fromPath(params.input)
   SPADES(ch_input, params.spades_args)
-// ^ meta.process-call.nextflow variable.process.nextflow
+// ^ meta.process-call.nextflow entity.name.class.process.nextflow
 //      ^ meta.process-call.nextflow punctuation.section.process-call.begin.nextflow
 //                                   ^ meta.process-call.nextflow punctuation.section.arguments.end.nextflow
 //       ^ source.nextflow meta.definition.workflow.nextflow meta.process-call.nextflow variable.parameter.channel.nextflow
@@ -230,14 +230,14 @@ workflow {
   if (!params.skip_kraken2) {
     ch_index = Channel.fromPath(params.kraken2_index)
     KRAKEN2(ch_index, ch_input)
-//  ^ meta.conditional-block.nextflow meta.process-call.nextflow variable.process.nextflow
+//  ^ meta.conditional-block.nextflow meta.process-call.nextflow entity.name.class.process.nextflow
   } else {
     ch_index = Channel.fromPath(params.kraken2_index)
     KRAKEN2(ch_index, ch_input)
-//  ^ meta.conditional-block.nextflow meta.process-call.nextflow variable.process.nextflow
+//  ^ meta.conditional-block.nextflow meta.process-call.nextflow entity.name.class.process.nextflow
   }
   WHATEVER(ch_input)
-// ^ meta.process-call.nextflow variable.process.nextflow
+// ^ meta.process-call.nextflow entity.name.class.process.nextflow
 }
 
 workflow DOSTUFF {

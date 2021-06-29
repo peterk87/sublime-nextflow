@@ -3,5 +3,5 @@
 nextflow.enable.dsl = 2
 ]]></content>
 	<tabTrigger>dsl2</tabTrigger>
-	<scope>source.nextflow - meta.definition.process.nextflow</scope>
+	<scope>source.nextflow - meta</scope>
 </snippet>

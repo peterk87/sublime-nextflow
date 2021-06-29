@@ -1,0 +1,4 @@
+=> 1.0.0
+
+- Added syntax highlight for DSL-2
+- Added completions and commands for workflow `params`, `PROCESS.out.`, conda, container, module include

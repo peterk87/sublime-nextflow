@@ -3,5 +3,5 @@
 #!/usr/bin/env nextflow
 ]]></content>
 	<tabTrigger>!env</tabTrigger>
-	<scope>source.nextflow - meta.definition.process.nextflow</scope>
+	<scope>source.nextflow - meta</scope>
 </snippet>

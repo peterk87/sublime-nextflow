@@ -7,26 +7,3 @@ Thanks for using sublime-nextflow!
 If you want more info or have any issues, please see the Github page at:
 
 https://github.com/peterk87/sublime-nextflow
-
-
-Snippets:
-
-- proc: process snippet
-- tag: tag directive snippet
-- pub: publishDir directive snippet
-- init: initialize a Nextflow workflow
-- illumina: Illumina paired-end reads file pairs channel
-- par: params.<param_name> = <default>
-- cpus: insert "${task.cpus}" into a script
-- script_path: specify user script (e.g. Python script) to use from scripts/ directory in workflow base directory
-- info: log.info snippet 
-- done: on workflow complete or error message
-
-
-Nextflow syntax highlighting extends Sublime Text 3's Groovy syntax with highlighting of: 
-- processes
-  - input/output/script tags
-- channel highlighting based on matching `ch_*`
-- some invalid syntax checks (into channel in input tag and from channel in output tag)
-- highlighting special Nextflow functions and variables (workflow, params, task, etc)
-

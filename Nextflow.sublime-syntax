@@ -92,7 +92,7 @@ contexts:
         - match: ';'
           scope: punctuation.separator.include-module-list.nextflow
         - match: \b(\w+)\b
-          scope: entity.name.module-import.nextflow
+          scope: entity.name.class.module-import.nextflow
         - match: \s*$
           scope: invalid.illegal.unclosed-include-body.nextflow
           pop: true
@@ -239,11 +239,13 @@ contexts:
       scope: keyword.operator.ternary.nextflow
       push:
         - meta_scope: meta.evaluation.ternary.nextflow
-        - match: $
-          pop: true
         - match: ":"
           scope: keyword.operator.ternary.expression-separator.nextflow
-        - include: nextflow-code-minus-map-keys
+        - include: nextflow-code
+        - match: \}
+          pop: true
+        - match: $
+          pop: true
     - match: "==~"
       scope: keyword.operator.match.nextflow
     - match: "=~"
@@ -282,7 +284,7 @@ contexts:
     - match: ^\s*(process)\s+(\w+|"[^"]+"|'[^']+')\s*(\{)
       captures:
         1: storage.type.return-type.def.nextflow
-        2: entity.name.process.nextflow
+        2: entity.name.class.process.nextflow
         3: punctuation.definition.process.begin.nextflow
       push:
         - meta_scope: meta.definition.process.nextflow
@@ -497,14 +499,14 @@ contexts:
   process-out:
     - match: \b([A-Z][A-Z0-9\_]+)\.(out)(\.)?(\w+)?
       captures:
-        1: variable.process.nextflow
+        1: entity.name.class.process.nextflow
         2: keyword.process.out.nextflow
         3: punctuation.accessor.dot.process-out.nextflow
         4: variable.channel.process-output-emit.nextflow
   workflow-process-call:
     - match: \b([A-Z][A-Z0-9\_]+)\b(\()
       captures:
-        1: variable.process.nextflow
+        1: entity.name.class.process.nextflow
         2: punctuation.section.process-call.begin.nextflow
       push:
         - meta_scope: meta.process-call.nextflow
