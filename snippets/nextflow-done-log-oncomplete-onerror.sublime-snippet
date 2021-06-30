@@ -18,5 +18,5 @@ workflow.onError {
 }
 ]]></content>
     <tabTrigger>done</tabTrigger>
-    <scope>source.nextflow - meta.definition.process.nextflow</scope>
+    <scope>source.nextflow - meta</scope>
 </snippet>

@@ -1,0 +1,4 @@
+[
+	{"caption": "Nextflow: Fetch Biocontainers information", "command": "nextflow_biocontainer_info_fetch"},
+	{"caption": "Nextflow: Fetch Conda packages information", "command": "nextflow_conda_packages_info_fetch"}
+]

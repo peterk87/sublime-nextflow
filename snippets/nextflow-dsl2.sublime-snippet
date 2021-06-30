@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[
+nextflow.enable.dsl = 2
+]]></content>
+	<tabTrigger>dsl2</tabTrigger>
+	<scope>source.nextflow - meta</scope>
+</snippet>

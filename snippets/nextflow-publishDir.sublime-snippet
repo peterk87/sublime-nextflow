@@ -1,0 +1,8 @@
+<snippet>
+	<content><![CDATA[
+publishDir "\${params.outdir}/$1",
+           mode: params.publish_dir_mode
+]]></content>
+	<tabTrigger>pub</tabTrigger>
+	<scope>source.nextflow meta.definition.process.nextflow</scope>
+</snippet>

@@ -1,0 +1,18 @@
+<snippet>
+	<content><![CDATA[
+process ${1:NAME} {
+  input:
+  ${4:tuple val(value), path(input)}
+
+  output:
+  ${5:tuple val(value), path(output)}
+
+  script:
+  """
+  ${0}${1/(\w)/\L$1/g} \$input > \$output
+  """
+}
+]]></content>
+	<tabTrigger>proc</tabTrigger>
+	<scope>source.nextflow - meta</scope>
+</snippet>

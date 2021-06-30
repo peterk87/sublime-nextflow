@@ -1,6 +1,6 @@
 <snippet>
 	<content><![CDATA[
-tag "${1:\$${2:sample_id}}"
+tag "${1:\$${2:sample}}"
 ]]></content>
 	<tabTrigger>tag</tabTrigger>
 	<scope>source.nextflow meta.definition.process.nextflow</scope>
