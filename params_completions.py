@@ -57,6 +57,8 @@ def format_param_info(param_info: dict) -> str:
         f'<p><b>Type:</b> <code>{param_type}</code></p>'
         f'<p><b>Default:</b> <code>{default}</code></p>'
     )
+    if 'pattern' in param_info:
+        out += f'<p><b>Pattern:</b> <code>{param_info["pattern"]}</code><p>'
     if 'enum' in param_info:
         enum = param_info['enum']
         if isinstance(enum, list):
