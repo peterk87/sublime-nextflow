@@ -1,7 +1,9 @@
-# sublime-nextflow: [Nextflow] workflow completions, commands, syntax highlighting and snippets for [Sublime Text 4]
+# ![nf-core/sublime](images/nfcore-sublime_logo.png)
+
+### [Nextflow] and [nf-core] workflow completions, commands, syntax highlighting and snippets for [Sublime Text 4]
 
 - **⚠️WARNING⚠️:** Sublime Text 3 is no longer supported by this package as of version 1.0.0. Only Sublime Text 4 is supported since this package requires Python 3.8 and new features in ST4.
-- **❗NOTE❗:** Only [DSL-2] Nextflow workflows are supported by this package. 
+- **❗NOTE❗:** Only [DSL-2] Nextflow workflows are supported by this package.
 
 This package provides [Nextflow] workflow language:
 
@@ -37,7 +39,6 @@ Navigate cursor to a `params.<variable>` to show a popup with info pulled from t
 
 ![](images/params-popup-nf-core-viralrecon.png)
 
-
 ### [Conda] completion
 
 **NOTE:** [Conda] must be installed along with any channels (e.g. [bioconda], [conda-forge]) to get packages information (needs to be able to run `conda search`).
@@ -65,7 +66,7 @@ Get process named output (i.e. using the [`emit`](https://www.nextflow.io/docs/l
 
 This command inserts similar code to what you'd find in an [nf-core modules](https://github.com/nf-core/modules) process definition with respect to process `container` directives. The [Biocontainers] information is pulled from the [Singularity][] images [https://depot.galaxyproject.org/singularity/](https://depot.galaxyproject.org/singularity/) and cached as a Python pickle file. [Docker] container image tags point to the [Biocontainers][] [Quay.io page](https://quay.io/organization/biocontainers).
 
-- Open the command palette (`ctrl+shift+p`) and run the `Nextflow: Fetch Biocontainers information` command to fetch the latest [Biocontainers] list fetched from 
+- Open the command palette (`ctrl+shift+p`) and run the `Nextflow: Fetch Biocontainers information` command to fetch the latest [Biocontainers] list fetched from
 - In your process definition, press `ctrl+l,c`, search for the container you're interested in
 
 ![](images/container-command-quick-menu.png)
@@ -82,7 +83,7 @@ if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker
 
 ## Nextflow Syntax Highlighting
 
-Nextflow syntax highlighting extends Sublime Text 4's Groovy syntax with highlighting of: 
+Nextflow syntax highlighting extends Sublime Text 4's Groovy syntax with highlighting of:
 
 - imports (DSL-2 modules)
   ![](images/syntax-highlighting-module-imports-nf-core-viralrecon.png)
@@ -109,7 +110,7 @@ Type one of the following and press `TAB`:
 - `illumina`: Illumina paired-end reads file pairs channel
 - `cpus`: insert `"${task.cpus}"` into a process script
 - `script_path`: specify user script (e.g. Python script) to use from `scripts/` directory in workflow base directory
-- `info`: `log.info` snippet 
+- `info`: `log.info` snippet
 - `done`: on workflow complete or error message
 
 # Changelog
