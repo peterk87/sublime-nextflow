@@ -33,9 +33,10 @@ def cache_pkgs_list(pkgs: List[Tuple[str, str, str, str]]) -> None:
         pickle.dump(pkgs, fh)
 
 
-def fetch_pkgs() -> None:
+def fetch_pkgs(window: sublime.Window) -> None:
     pkgs = run_conda_search()
     cache_pkgs_list(pkgs)
+    window.status_message(f'Retrieved and cached info for {len(pkgs)} Conda packages')
 
 
 def get_cached_pkgs_list() -> Optional[List[Tuple[str, str, str, str]]]:
@@ -50,13 +51,15 @@ def get_cached_pkgs_list() -> Optional[List[Tuple[str, str, str, str]]]:
 class NextflowCondaPackagesInfoFetchCommand(sublime_plugin.WindowCommand):
     def run(self):
         with pkgs_fetch_lock:
-            thread = threading.Thread(target=fetch_pkgs)
+            self.window.status_message('Fetching Conda package information...')
+            thread = threading.Thread(target=fetch_pkgs, args=(self.window, ))
             thread.daemon = True
             thread.start()
 
 
 class NextflowCondaPackagesEventListener(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
+
         if view.syntax().name != 'Nextflow':
             return
         if len(locations) > 1:
@@ -64,11 +67,13 @@ class NextflowCondaPackagesEventListener(sublime_plugin.EventListener):
         point = locations[0]
         if not view.score_selector(point, 'source.nextflow meta.definition.process.nextflow meta.definition.conda-directive.nextflow string'):
             return
+        window = view.window()
+        window.status_message('Getting Conda packages for completions...')
         pkgs = get_cached_pkgs_list()
         if pkgs:
-            print(f'Retrieved {len(pkgs)} Conda packages from cache')
+            window.status_message(f'Retrieved {len(pkgs)} Conda packages from cache')
         else:
-            print('Running nextflow_conda_packages_info_fetch command')
+            window.status_message('Running nextflow_conda_packages_info_fetch command')
             view.run_command('nextflow_conda_packages_info_fetch')
             return
         pkgs = pkgs[::-1]
