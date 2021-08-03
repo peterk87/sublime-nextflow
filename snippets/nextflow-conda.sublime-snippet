@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[
+conda (params.enable_conda ? "$1" : null)
+]]></content>
+	<tabTrigger>conda</tabTrigger>
+	<scope>source.nextflow meta.definition.process.nextflow</scope>
+</snippet>
