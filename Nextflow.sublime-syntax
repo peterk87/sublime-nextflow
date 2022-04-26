@@ -495,26 +495,27 @@ contexts:
         - match: \}
           pop: true
         - include: workflow-stuff
-
-  process-out:
-    - match: \b([A-Z][A-Z0-9\_]+)\.(out)(\.)?(\w+)?
-      captures:
-        1: entity.name.class.process.nextflow
-        2: keyword.process.out.nextflow
-        3: punctuation.accessor.dot.process-out.nextflow
-        4: variable.channel.process-output-emit.nextflow
-  workflow-process-call:
-    - match: \b([A-Z][A-Z0-9\_]+)\b(\()
-      captures:
-        1: entity.name.class.process.nextflow
-        2: punctuation.section.process-call.begin.nextflow
+  workflow-process:
+    - match: \b([A-Z][A-Z0-9\_]+)
+      scope: entity.name.class.process.nextflow
+    - match: \(
+      scope: punctuation.section.process-call.begin.nextflow
       push:
         - meta_scope: meta.process-call.nextflow
         - match: \)
           scope: punctuation.section.arguments.end.nextflow
           pop: true
-        - include: process-out
+        - include: workflow-process
         - include: nextflow-code
+    - match: \.(out)
+      scope: keyword.process.out.nextflow
+      push:
+        - match: \s*
+        - match: (\.)?(\w+)?
+          captures:
+            1: punctuation.accessor.dot.process-out.nextflow
+            2: variable.channel.process-output-emit.nextflow
+          pop: true
   workflow-def:
     - match: ^\s*(workflow)\s*(\w+)?.*(\{)
       captures:
@@ -529,7 +530,7 @@ contexts:
       captures:
         1: punctuation.definition.workflow.end.nextflow
       pop: true
-    - include: process-out
+    - include: workflow-process
     - include: workflow-process-call
     - include: workflow-conditionals
     - include: nextflow-code
@@ -905,7 +906,7 @@ contexts:
         - match: \)
           scope: punctuation.section.channel-operator-call.end.nextflow
           pop: true
-        - include: process-out
+        - include: workflow-process
         - include: nextflow
 
   channel-operators:
