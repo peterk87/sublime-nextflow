@@ -1,0 +1,11 @@
+=> 1.1.0
+
+Added:
+
+- more informative popups for showing info about process output so it's easier to select the correct output channel without referencing the process code.
+- subworkflow completions and info popups about `take` and `emit` channels
+- `conda` directive snippet
+
+Fixed:
+
+- comment toggling

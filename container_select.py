@@ -58,9 +58,10 @@ def cache_images_list(images: List[Tuple[str, str, str]]) -> None:
         pickle.dump(images, fh)
 
 
-def fetch_images() -> None:
+def fetch_images(window: sublime.Window) -> None:
     images = get_images()
     cache_images_list(images)
+    window.status_message(f'Retrieved and cached info for {len(images)} Biocontainer images from {GALAXY_SINGULARITY_IMAGES_URL}')
 
 
 def get_cached_images_list() -> Optional[List[Tuple[str, str, str]]]:
@@ -75,7 +76,8 @@ def get_cached_images_list() -> Optional[List[Tuple[str, str, str]]]:
 class NextflowBiocontainerInfoFetchCommand(sublime_plugin.WindowCommand):
     def run(self):
         with container_fetch_lock:
-            thread = threading.Thread(target=fetch_images)
+            self.window.status_message('Fetching Biocontainers Docker and Singularity images information...')
+            thread = threading.Thread(target=fetch_images, args=(self.window, ))
             thread.daemon = True
             thread.start()
 
@@ -107,15 +109,16 @@ class NextflowBiocontainerSelectCommand(sublime_plugin.TextCommand):
             return
         region = view.selection[0]
         point = region.a
+        window = view.window()
         singularity_images = get_cached_images_list()
         if singularity_images:
-            print(f'Retrieved {len(singularity_images)} singularity images from cache')
+            window.status_message(f'Retrieved {len(singularity_images)} singularity images from cache')
         else:
-            print(f'Getting singularity images from {GALAXY_SINGULARITY_IMAGES_URL}')
+            window.status_message(f'Getting singularity images from {GALAXY_SINGULARITY_IMAGES_URL}')
             singularity_images = get_images()
-            print(f'Retrieved {len(singularity_images)} singularity images')
+            window.status_message(f'Retrieved {len(singularity_images)} singularity images')
             cache_images_list(singularity_images)
-            print(f'Cached singularity images')
+            window.status_message(f'Cached info for {len(singularity_images)} singularity images')
 
         def on_select(x: int):
             if x == -1:

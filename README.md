@@ -7,7 +7,8 @@
 
 This package provides [Nextflow] workflow language:
 
-- completions (`params.`, `conda`, `<PROCESS>.out.<emit name>`)
+- completions (`params.`, `conda`, `<PROCESS/WORKFLOW>.out.<emit name>`)
+- informative popups for processes and sub-workflows
 - commands (insert container directive, insert module import statement)
 - syntax highlighting
 - snippets
@@ -62,6 +63,12 @@ Get process named output (i.e. using the [`emit`](https://www.nextflow.io/docs/l
 
 - completion shows what's on the channel as well!
 
+### Process output channel popup
+
+Show useful info about what output the a process is emitting.
+
+![](images/process-out-popup-nf-core-viralrecon.png)
+
 ### Container directive insert command
 
 This command inserts similar code to what you'd find in an [nf-core modules](https://github.com/nf-core/modules) process definition with respect to process `container` directives. The [Biocontainers] information is pulled from the [Singularity][] images [https://depot.galaxyproject.org/singularity/](https://depot.galaxyproject.org/singularity/) and cached as a Python pickle file. [Docker] container image tags point to the [Biocontainers][] [Quay.io page](https://quay.io/organization/biocontainers).
@@ -107,6 +114,7 @@ Type one of the following and press `TAB`:
 - `proc`: [process](https://www.nextflow.io/docs/latest/process.html) snippet
 - `tag`: [tag](https://www.nextflow.io/docs/latest/process.html#tag) process directive snippet
 - `pub`: [publishDir](https://www.nextflow.io/docs/latest/process.html#publishdir) process directive snippet
+- `conda`: [conda](https://www.nextflow.io/docs/edge/process.html#conda) process directive snippet
 - `illumina`: Illumina paired-end reads file pairs channel
 - `cpus`: insert `"${task.cpus}"` into a process script
 - `script_path`: specify user script (e.g. Python script) to use from `scripts/` directory in workflow base directory
@@ -114,6 +122,18 @@ Type one of the following and press `TAB`:
 - `done`: on workflow complete or error message
 
 # Changelog
+
+## 1.1.0 - [2022-05-13]
+
+**Added:**
+
+- more informative popups for showing info about process output so it's easier to select the correct output channel without referencing the process code.
+- subworkflow completions and info popups about `take` and `emit` channels 
+- `conda` directive snippet
+
+**Fixed:**
+
+- comment toggling
 
 ## 1.0.0 - [2021-06-30]
 
