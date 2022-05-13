@@ -7,7 +7,8 @@
 
 This package provides [Nextflow] workflow language:
 
-- completions (`params.`, `conda`, `<PROCESS>.out.<emit name>`)
+- completions (`params.`, `conda`, `<PROCESS/WORKFLOW>.out.<emit name>`)
+- informative popups for processes and sub-workflows
 - commands (insert container directive, insert module import statement)
 - syntax highlighting
 - snippets
@@ -122,11 +123,17 @@ Type one of the following and press `TAB`:
 
 # Changelog
 
-## 1.1.0 - [2022-04-26]
+## 1.1.0 - [2022-05-13]
 
-- Added more informative popups for showing info about process output so it's easier to select the correct output channel without referencing the process code.
-- Added `conda` directive snippet
-- Fixed issue with comment toggling
+**Added:**
+
+- more informative popups for showing info about process output so it's easier to select the correct output channel without referencing the process code.
+- subworkflow completions and info popups about `take` and `emit` channels 
+- `conda` directive snippet
+
+**Fixed:**
+
+- comment toggling
 
 ## 1.0.0 - [2021-06-30]
 
