@@ -910,7 +910,7 @@ contexts:
         - include: nextflow
 
   channel-operators:
-    - match: \.(create|empty|fromFilePairs|fromPath|from|value|watchPath)
+    - match: \.(create|empty|from|fromList|fromPath|fromFilePairs|fromSRA|of|value|watchPath)
       captures:
         1: support.function.channel-factory.nextflow
     - match: \s+\.(distinct|filter|first|last|randomSample|take|unique|until)
@@ -926,7 +926,7 @@ contexts:
     - match: \s*\.(choice|separate|route)
       captures:
         1: keyword.operator.channel-forking-operator.nextflow
-    - match: \s*\.(toInteger|countBy|count|min|max|sum)
+    - match: \s*\.(toInteger|countBy|count|min|max|sum|branch|multiMap)
       captures:
         1: keyword.operator.channel-maths-operator.nextflow
     - match: \s*\.(close|dump|ifEmpty|println|print|set|view)\b
