@@ -347,7 +347,7 @@ contexts:
     - match: (?=^\s*(script|shell|exec)\:)
       pop: true
   process-input-channel:
-    - match: '^\s*(?=tuple|set|file|path|val)'
+    - match: '^\s*(?=val|file|path|env|stdin|set|tuple|each)'
       push:
         - meta_scope: meta.definition.process-input-channel.nextflow
         - include: process-tuple-operator
@@ -365,7 +365,7 @@ contexts:
         - match: $
           pop: true
   process-output-channel:
-    - match: '^\s*(?=tuple|set|file|path|val)'
+    - match: '^\s*(?=val|file|path|env|stdout|set|tuple)'
       push:
         - meta_scope: meta.definition.process-output-channel.nextflow
         - include: process-tuple-operator
