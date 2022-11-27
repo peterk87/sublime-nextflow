@@ -299,11 +299,11 @@ contexts:
         - include: process-input
         - include: directives
         - include: nextflow-code
-  directives: 
-    - match: '^\s+(afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
+  directives:
+    - match: '^\s+(accelerator|afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|debug|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
       scope: invalid.illegal.directive-with.nextflow
-    - match: ^\s+(afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
-      captures: 
+    - match: ^\s+(accelerator|afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|debug|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
+      captures:
         1: support.type.nextflow
     - match: '^\s*(conda)\s+'
       captures:
