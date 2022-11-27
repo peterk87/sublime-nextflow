@@ -330,7 +330,7 @@ contexts:
         - include: popping-process-input-or-output
   process-output:
     - match: '^\s*(output)\:'
-      captures: 
+      captures:
         1: keyword.other.process-output.nextflow
       push:
         - meta_scope: meta.definition.process-output.nextflow
@@ -393,7 +393,7 @@ contexts:
       pop: true
   process-set-operator:
     - match: \b(set)\b
-      captures: 
+      captures:
         1: keyword.other.channel.set.nextflow
   process-tuple-operator:
     - match: \b(tuple)\b
@@ -459,7 +459,7 @@ contexts:
               - include: escaped-end-of-line
               - include: nextflow-code
               - match: (task)\.(\w+)
-                captures: 
+                captures:
                   1: support.variable.task.nextflow
                   2: entity.name.task-param.nextflow
           # anything else following a dollar sign is not a valid interpolation
@@ -897,7 +897,7 @@ contexts:
     - include: channels
   channel-combining-operators:
     - match: \s*(\.)(cross|collectFile|combine|concat|into|join|merge|mix|phase|spread|tap)\s*\(
-      captures: 
+      captures:
         1: punctuation.accessor.channel.nextflow
         2: keyword.operator.channel-combining-operator.nextflow
         3: punctuation.section.channel-operator-call.begin.nextflow
@@ -917,10 +917,10 @@ contexts:
       captures:
         1: keyword.operator.channel-filtering-operator.nextflow
     - match: \s*\.(buffer|collate|collect|flatten|flatMap|groupBy|groupTuple|map|reduce|toList|toSortedList|transpose)
-      captures: 
+      captures:
         1: keyword.operator.channel-transforming-operator.nextflow
     - match: \s*\.(splitCsv|splitFasta|splitFastq|splitText)
-      captures: 
+      captures:
         1: keyword.operator.channel-splitting-operator.nextflow
     - include: channel-combining-operators
     - match: \s*\.(choice|separate|route)
@@ -930,7 +930,7 @@ contexts:
       captures:
         1: keyword.operator.channel-maths-operator.nextflow
     - match: \s*\.(close|dump|ifEmpty|println|print|set|view)\b
-      captures: 
+      captures:
         1: keyword.operator.channel-other-operator.nextflow
   built-ins:
     - match: \b(file)\b
