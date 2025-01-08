@@ -24,6 +24,14 @@ variables:
   single_dollar_interpolation_identifier: (?:{{unicode_letter}}|[a-zA-Z_])(?:{{unicode_letter}}|[a-zA-Z0-9_])*
 scope: source.nextflow
 contexts:
+  # else-pop and immediately-pop from https://forum.sublimetext.com/t/syntax-definitions-how-to-force-pop-out-of-the-stack/36376/4
+  # convenience contexts for popping context off stack
+  else-pop:
+    - match: (?=\S)
+      pop: true
+  immediately-pop:
+    - match: ''
+      pop: true
   main:
     - match: ^(#!).+$\n
       scope: comment.line.hashbang.nextflow
@@ -241,11 +249,12 @@ contexts:
         - meta_scope: meta.evaluation.ternary.nextflow
         - match: ":"
           scope: keyword.operator.ternary.expression-separator.nextflow
-        - include: nextflow-code
         - match: \}
           pop: true
         - match: $
           pop: true
+        - include: nextflow-code
+        - include: else-pop
     - match: "==~"
       scope: keyword.operator.match.nextflow
     - match: "=~"

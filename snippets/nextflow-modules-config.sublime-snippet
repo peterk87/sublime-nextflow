@@ -1,0 +1,17 @@
+<snippet>
+	<content><![CDATA[
+withName: '$1' {
+  ext.args = '$2'
+  publishDir = [
+    [
+      path: { "\${params.outdir}/$3" },
+      mode: params.publish_dir_mode,
+      saveAs: { filename -> filename.equals('versions.yml') ? null : filename }
+    ]
+  ]
+}
+$0
+]]></content>
+	<tabTrigger>withName</tabTrigger>
+	<scope>source.nextflow meta.block.nextflow</scope>
+</snippet>

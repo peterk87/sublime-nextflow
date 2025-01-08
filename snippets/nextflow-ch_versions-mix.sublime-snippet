@@ -1,0 +1,7 @@
+<snippet>
+	<content><![CDATA[
+ch_versions = ch_versions.mix($1.out.versions${2:.first().ifEmpty(null)})$0
+]]></content>
+	<tabTrigger>ver</tabTrigger>
+	<scope>source.nextflow meta.definition.workflow.nextflow</scope>
+</snippet>

@@ -4,3 +4,5 @@ package-metadata.json
 .ipynb_checkpoints/
 *.ipynb
 *.pickle
+venv/
+.venv/

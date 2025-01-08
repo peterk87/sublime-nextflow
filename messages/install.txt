@@ -6,4 +6,4 @@ Thanks for using sublime-nextflow!
 
 If you want more info or have any issues, please see the Github page at:
 
-https://github.com/peterk87/sublime-nextflow
+https://github.com/nf-core/sublime

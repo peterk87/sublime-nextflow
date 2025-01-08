@@ -1,0 +1,9 @@
+=> 1.2.0
+
+Added:
+
+- snippets for process version YML and ch_versions mixing (ver), process modules config (withName)
+
+Fixed:
+
+- process popups hanging due to bad regex for getting output emit labels (https://github.com/nf-core/sublime/issues/5)

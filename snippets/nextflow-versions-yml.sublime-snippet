@@ -1,0 +1,10 @@
+<snippet>
+	<content><![CDATA[
+cat <<-END_VERSIONS > versions.yml
+"\${task.process}":
+    $1: \\\$($1 --version | sed 's/$1 //')$0
+END_VERSIONS
+]]></content>
+	<tabTrigger>ver</tabTrigger>
+	<scope>source.nextflow meta.definition.process.nextflow string.quoted.double.block.nextflow</scope>
+</snippet>

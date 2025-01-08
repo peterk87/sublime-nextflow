@@ -10,7 +10,7 @@ import sublime_plugin
 regex_input_section = re.compile(r'\s*input:\s*')
 regex_output_section = re.compile(r'\s*output:\s*')
 # regex to find output channels with emit
-regex_output_channel = re.compile(r'((?:.*,\s+)*.*),\s*emit:\s*(\w+)')
+regex_output_channel = re.compile(r'(.*?),\s*emit:\s*(\w+)', re.DOTALL)
 
 regex_take_section = re.compile(r'\s*take:\s*')
 regex_emit_section = re.compile(r'\s*emit:\s*')
@@ -140,7 +140,8 @@ def find_wf_emit_section(text: str, start: int, end: int) -> int:
 
 def get_output_channels(text: str, start: int, end: int) -> List[Tuple[str, str]]:
     out = []
-    for m in regex_output_channel.finditer(text[start:end]):
+    t = text[start:end]
+    for m in regex_output_channel.finditer(t):
         chan, emit = m.groups()
         chan = ''.join(x.strip() for x in chan.split('\n'))
         out.append((emit, chan))
@@ -178,6 +179,9 @@ def get_output_channel_emits(path: Path, proc_name: str) -> List[Tuple[str, str]
         return []
     proc_output_start = find_proc_output_section(text, proc_start, proc_end)
     proc_output_start += proc_start
+    next_section_match = re.search(r'(when:|exec:|script:|stub:)', text[proc_output_start:])
+    if next_section_match:
+        proc_end = proc_output_start + next_section_match.start()
     out = get_output_channels(text, proc_output_start, proc_end)
     if not out:
         out = output_section_lines(text, proc_output_start, proc_end)
@@ -341,7 +345,7 @@ def show_output_channel_popup(root_dir: Path, view: sublime.View, point: int) ->
                 output_channels_text = get_wf_emits(path, proc_name)
                 is_proc = False
         if not output_channels_text:
-            window.status_message(f'No input channels in {proc_name}!')
+            window.status_message(f'No output channels in {proc_name}!')
     else:
         for path in root_dir.rglob('**/*.nf'):
             output_channels_text = get_output_channel_emits(path, proc_name)
