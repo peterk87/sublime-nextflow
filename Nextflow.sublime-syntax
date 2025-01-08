@@ -308,11 +308,11 @@ contexts:
         - include: process-input
         - include: directives
         - include: nextflow-code
-  directives: 
-    - match: '^\s+(afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
+  directives:
+    - match: '^\s+(accelerator|afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|debug|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus):'
       scope: invalid.illegal.directive-with.nextflow
-    - match: ^\s+(afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
-      captures: 
+    - match: ^\s+(accelerator|afterScript|beforeScript|cache|cpus|container|containerOptions|clusterOptions|debug|disk|echo|errorStrategy|executor|ext|label|maxErrors|maxForks|maxRetries|memory|module|penv|pod|publishDir|queue|scratch|stageInMode|stageOutMode|storeDir|tag|time|validExitStatus)\b
+      captures:
         1: support.type.nextflow
     - match: '^\s*(conda)\s+'
       captures:
@@ -339,7 +339,7 @@ contexts:
         - include: popping-process-input-or-output
   process-output:
     - match: '^\s*(output)\:'
-      captures: 
+      captures:
         1: keyword.other.process-output.nextflow
       push:
         - meta_scope: meta.definition.process-output.nextflow
@@ -356,7 +356,7 @@ contexts:
     - match: (?=^\s*(script|shell|exec)\:)
       pop: true
   process-input-channel:
-    - match: '^\s*(?=tuple|set|file|path|val)'
+    - match: '^\s*(?=val|file|path|env|stdin|set|tuple|each)'
       push:
         - meta_scope: meta.definition.process-input-channel.nextflow
         - include: process-tuple-operator
@@ -374,7 +374,7 @@ contexts:
         - match: $
           pop: true
   process-output-channel:
-    - match: '^\s*(?=tuple|set|file|path|val)'
+    - match: '^\s*(?=val|file|path|env|stdout|set|tuple)'
       push:
         - meta_scope: meta.definition.process-output-channel.nextflow
         - include: process-tuple-operator
@@ -402,7 +402,7 @@ contexts:
       pop: true
   process-set-operator:
     - match: \b(set)\b
-      captures: 
+      captures:
         1: keyword.other.channel.set.nextflow
   process-tuple-operator:
     - match: \b(tuple)\b
@@ -468,7 +468,7 @@ contexts:
               - include: escaped-end-of-line
               - include: nextflow-code
               - match: (task)\.(\w+)
-                captures: 
+                captures:
                   1: support.variable.task.nextflow
                   2: entity.name.task-param.nextflow
           # anything else following a dollar sign is not a valid interpolation
@@ -906,7 +906,7 @@ contexts:
     - include: channels
   channel-combining-operators:
     - match: \s*(\.)(cross|collectFile|combine|concat|into|join|merge|mix|phase|spread|tap)\s*\(
-      captures: 
+      captures:
         1: punctuation.accessor.channel.nextflow
         2: keyword.operator.channel-combining-operator.nextflow
         3: punctuation.section.channel-operator-call.begin.nextflow
@@ -919,27 +919,27 @@ contexts:
         - include: nextflow
 
   channel-operators:
-    - match: \.(create|empty|fromFilePairs|fromPath|from|value|watchPath)
+    - match: \.(create|empty|from|fromList|fromPath|fromFilePairs|fromSRA|of|value|watchPath)
       captures:
         1: support.function.channel-factory.nextflow
     - match: \s+\.(distinct|filter|first|last|randomSample|take|unique|until)
       captures:
         1: keyword.operator.channel-filtering-operator.nextflow
     - match: \s*\.(buffer|collate|collect|flatten|flatMap|groupBy|groupTuple|map|reduce|toList|toSortedList|transpose)
-      captures: 
+      captures:
         1: keyword.operator.channel-transforming-operator.nextflow
     - match: \s*\.(splitCsv|splitFasta|splitFastq|splitText)
-      captures: 
+      captures:
         1: keyword.operator.channel-splitting-operator.nextflow
     - include: channel-combining-operators
     - match: \s*\.(choice|separate|route)
       captures:
         1: keyword.operator.channel-forking-operator.nextflow
-    - match: \s*\.(toInteger|countBy|count|min|max|sum)
+    - match: \s*\.(toInteger|countBy|count|min|max|sum|branch|multiMap)
       captures:
         1: keyword.operator.channel-maths-operator.nextflow
     - match: \s*\.(close|dump|ifEmpty|println|print|set|view)\b
-      captures: 
+      captures:
         1: keyword.operator.channel-other-operator.nextflow
   built-ins:
     - match: \b(file)\b
